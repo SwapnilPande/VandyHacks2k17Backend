@@ -25,6 +25,30 @@ def signInUser(db, email):
 		return {'UID' : output[0]}
 	return {'UID' : ''}
 
+def getUserInfo(db, uid):
+	queryString = """
+        SELECT (name, email, ranking, number_races, number_won, 
+        		total_distance, total_time) 
+        FROM users
+        WHERE user_id=%(uid)s
+        LIMIT 1;"""
+
+	inputs = {'uid' : uid}
+	output = db.dbExecuteReturnOne(queryString, inputs)
+	if(output):
+		output = output[0][1:-1].split(',')
+		return {
+			"name" : output[0][1:-1],
+			"email" : output[1],
+			"ranking" : output[2],
+			"number_races" : output[3],
+			"number_won" : output[4],
+			"total_distance" : output[5],
+			"total_time" : output[6]
+		}
+	return {'UID' : ''}
+
+
 
 
   

@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "responseCreateUser",
+  "type": "object",
+  "properties": {
+        "name" : {"type" : "string"},
+        "email" : {"type" : "string"},
+        "ranking" : {"type" : "number"},
+        "number_races" : {"type" : "number"},
+        "number_won" : {"type" : "number"},
+        "total_distance" : {"type" : "number"},
+        "total_time" : {"type" : "number"}
+    }
+}
