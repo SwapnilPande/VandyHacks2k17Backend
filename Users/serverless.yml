@@ -20,30 +20,15 @@ service: Users
 provider:
   name: aws
   runtime: python2.7
+  stage: dev
+  region: us-east-1
 
-# you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
-
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  #Environment variables for the python functions
+  environment:
+    dbname: vhsocialrun
+    dbuser: swapnofshin
+    dbhost: vhsocialrun.culrclwoj6ec.us-east-1.rds.amazonaws.com
+    dbpassword: password
 
 # you can add packaging information here
 #package:
@@ -55,49 +40,33 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
-
-#    The following are a few example events you can configure
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
-#    events:
-#      - http:
-#          path: users/create
-#          method: get
-#      - s3: ${env:BUCKET}
-#      - schedule: rate(10 minutes)
-#      - sns: greeter-topic
-#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
-#      - alexaSkill
-#      - iot:
-#          sql: "SELECT * FROM 'some_topic'"
-#      - cloudwatchEvent:
-#          event:
-#            source:
-#              - "aws.ec2"
-#            detail-type:
-#              - "EC2 Instance State-change Notification"
-#            detail:
-#              state:
-#                - pending
-#      - cloudwatchLog: '/aws/lambda/hello'
-#      - cognitoUserPool:
-#          pool: MyUserPool
-#          trigger: PreSignUp
-
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
-
-# you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+  ################################################################################
+  CreateUser: #Retrieves all runs from DynamoDB database
+    memorySize: 128 #Memory in MB
+    handler: CreateUser/handler-CreateUser.handler
+    role: arn:aws:iam::863221427435:role/lambda_basic_execution #IAM role that defines permissions for the function
+    events: #Events to trigger the function execution
+      - 
+        http:
+          path: user
+          method: put
+          integration: lambda
+          request:
+            template:
+              application/json: ${file(mappingtemplates/request-CreateUsers.vtl)}
+          documentation:
+            summary: "Test summary"
+            description: "Test description 1"
+            methodResponses:
+              -
+                statusCode: 200
+                responseModels:
+                  "application/json": "responseGetDeliveries"
+custom:
+  documentation:
+    models:
+      -
+        name: "responseCreateUser"
+        description: "Response Model for creating a user"
+        contentType: "application/json"
+        schema: ${file(models/response-CreateUser.json)}
