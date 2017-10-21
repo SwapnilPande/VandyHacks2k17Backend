@@ -46,7 +46,7 @@ functions:
     handler: CreateUser/handler-CreateUser.handler
     role: arn:aws:iam::863221427435:role/lambda_basic_execution #IAM role that defines permissions for the function
     events: #Events to trigger the function execution
-      - 
+      -
         http:
           path: /{email}
           method: put
@@ -61,7 +61,7 @@ functions:
               -
                 statusCode: 200
                 responseModels:
-                  "application/json": "responseGetDeliveries"
+                  "application/json": "responseCreateUser"
   ################################################################################
   SignInUser: #Retrieves all runs from DynamoDB database
     memorySize: 128 #Memory in MB

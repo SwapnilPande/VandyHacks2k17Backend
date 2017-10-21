@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "responseCreateUser",
+  "type": "object",
+  "properties": {
+        "scale" : {"type" : "string"},
+        "type" : {"type" : "string"},
+        "startTime" : {"type" : "string"},
+        "length" : {"type" : "string"}
+    }
+}
