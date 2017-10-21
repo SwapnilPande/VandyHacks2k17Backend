@@ -3,6 +3,6 @@
   "title": "responseCreateUser",
   "type": "object",
   "properties": {
-        "name" : {"type" : "string"}
+        "UID" : {"type" : "string"}
     }
 }

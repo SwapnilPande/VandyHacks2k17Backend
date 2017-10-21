@@ -8,7 +8,23 @@ def createUser(db, name, email):
 
 	inputs = {'name' : name, 'email' : email}
 	output = db.dbExecuteReturnOne(queryString, inputs)
-	return {'UID' : output[0]}
+	if(output):
+		return {'UID' : output[0]}
+	return {'UID' : ''}
+
+
+def signInUser(db, email):
+	queryString = """
+        SELECT * FROM users
+        WHERE email=%(email)s
+        LIMIT 1;"""
+
+	inputs = {'email' : email}
+	output = db.dbExecuteReturnOne(queryString, inputs)
+	if(output):
+		return {'UID' : output[0]}
+	return {'UID' : ''}
+
 
 
   
