@@ -3,8 +3,8 @@
   "title": "responseCreateUser",
   "type": "object",
   "properties": {
-        "name" : {"type" : "string"},
+        "userID" : {"type" : "number"},
         "lat" : {"type" : "number"},
-        "lon" : {"type" : "number"}
+        "lon" : {"type" : "number"},
     }
 }

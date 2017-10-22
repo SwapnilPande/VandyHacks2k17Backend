@@ -17,4 +17,5 @@ db = database.DatabaseConnection(dbName, dbUser, dbHost, dbPassword)
 
 def handler(event, context):
     #Call and return createUser
-    return users.createUser(db, event['name'], event['email']) 
+    return users.createUser(db, event['name'], event['email'], 
+    						event['lat'], event['lon']) 

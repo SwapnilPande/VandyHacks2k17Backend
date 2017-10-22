@@ -1,6 +1,6 @@
 
 
-def createUser(db, name, email):
+def createUser(db, name, email, lat, lon):
 	queryString = """
         INSERT INTO users (name, email) 
         VALUES (%(name)s, %(email)s) 
@@ -9,11 +9,17 @@ def createUser(db, name, email):
 	inputs = {'name' : name, 'email' : email}
 	output = db.dbExecuteReturnOne(queryString, inputs)
 	if(output):
-		return {'UID' : output[0]}
+		uid = output[0]
+		queryString2 = """
+		INSERT INTO user_loc (user_id, loc) 
+        VALUES (%(userID)s, ST_SetSRID(ST_MakePoint(%(lon)s,%(lat)s), 4326));"""
+		inputs2 = { 'userID': uid, 'lat' : lat, 'lon' : lon}
+		db.dbExecuteReturnNone(queryString2, inputs2)
+        return {'UID' : uid}
 	return {'UID' : ''}
 
 
-def signInUser(db, email):
+def signInUser(db, email, lat, lon):
 	queryString = """
         SELECT * FROM users
         WHERE email=%(email)s
@@ -22,6 +28,13 @@ def signInUser(db, email):
 	inputs = {'email' : email}
 	output = db.dbExecuteReturnOne(queryString, inputs)
 	if(output):
+		#Updating the user location here
+		uid = output[0]
+		queryString2 = """
+		UPDATE user_loc
+        SET loc = ST_SetSRID(ST_MakePoint(%(lon)s,%(lat)s), 4326)
+        WHERE userID = %(userID)s;"""
+		inputs2 = { 'userID': uid, 'lat' : lat, 'lon' : lon}
 		return {'UID' : output[0]}
 	return {'UID' : ''}
 
