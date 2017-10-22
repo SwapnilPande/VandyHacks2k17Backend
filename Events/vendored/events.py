@@ -33,22 +33,28 @@ def timeClientToPg(date):
     return (date[:4] + "-" + date[4:6] + "-" + date[6:8] +
             " " + date[8:10] +  ":" + date[10:] + ":00")
 
-
+def getDatetime(date):
+	return datetime.datetime(year=int(date[:4]),month=int(date[4:6]),day=int(date[6:8]),
+		hour=int(date[8:10]), minute=int(date[10:]))
 
 
 
 def createEvent(db, scale, eventType, startTime, length, lat, lon, name):
+	
+
 	inputs = {}
 	if(eventType == 0):
+		dTime = datetime.timedelta(minutes = int(length)) #Time delta between start and finish
+		timeLength = getDatetime(startTime) + dTime
 		queryString = """
 		INSERT INTO events (event_scale, event_type, start_time, length_time, loc, name) 
-		VALUES (%(scale)s, %(eventType)s, %(startTime)s, %(endTime)s, 
+		VALUES (%(scale)s, %(eventType)s, %(startTime)s, %(timeLength)s, 
 				ST_SetSRID(ST_MakePoint(%(lon)s,%(lat)s), 4326), %(name)s) 
 		RETURNING event_id;"""
 		inputs = { 'scale' : scale, 
 		'eventType' : eventType, 
 		'startTime' : timeClientToPg(startTime), 
-		'endTime' : timeClientToPg(length),
+		'timeLength' : timeLength,
 		'lat' : lat,
 		'lon' : lon,
 		'name' : name
