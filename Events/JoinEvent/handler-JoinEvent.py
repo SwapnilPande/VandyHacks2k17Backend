@@ -14,7 +14,7 @@ dbPassword = 'password'#os.environ['dbpassword'] #password of the database to co
 
 #Database object
 db = database.DatabaseConnection(dbName, dbUser, dbHost, dbPassword)
-
+ 
 def handler(event, context):
     #Call and return createUser
     return events.joinEvent(db, event['userID'], event['eventID']) 

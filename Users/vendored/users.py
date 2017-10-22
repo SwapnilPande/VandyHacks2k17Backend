@@ -1,12 +1,12 @@
 
 
-def createUser(db, name, email, lat, lon):
+def createUser(db, name, email, lat, lon, phone):
 	queryString = """
-        INSERT INTO users (name, email) 
-        VALUES (%(name)s, %(email)s) 
+        INSERT INTO users (name, email, phone) 
+        VALUES (%(name)s, %(email)s, %(phone)s) 
         RETURNING user_id;"""
 
-	inputs = {'name' : name, 'email' : email}
+	inputs = {'name' : name, 'email' : email, 'phone' : phone}
 	output = db.dbExecuteReturnOne(queryString, inputs)
 	if(output):
 		uid = output[0]

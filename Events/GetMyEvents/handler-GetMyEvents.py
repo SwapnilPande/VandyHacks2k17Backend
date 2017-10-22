@@ -5,7 +5,7 @@ here = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(here, "../vendored"))
 
 import database
-import users
+import events
 
 dbName = os.environ['dbname'] #name of the postgres database to connect to
 dbUser = os.environ['dbuser'] #name of the database user to use
@@ -16,6 +16,6 @@ dbPassword = os.environ['dbpassword'] #password of the database to connect to
 db = database.DatabaseConnection(dbName, dbUser, dbHost, dbPassword)
 
 def handler(event, context):
+	
     #Call and return createUser
-    return users.createUser(db, event['name'], event['email'], 
-    						event['lat'], event['lon'], event['phone']) 
+    return events.getEvents(db, event['userID'])

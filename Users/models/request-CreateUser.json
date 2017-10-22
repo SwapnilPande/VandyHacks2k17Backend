@@ -5,6 +5,7 @@
   "properties": {
         "name" : {"type" : "string"},
         "lat" : {"type" : "number"},
-        "lon" : {"type" : "number"}
+        "lon" : {"type" : "number"},
+        "phone" : {"type" : "string"}
     }
 }
