@@ -1,0 +1,15 @@
+ {
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "responseGetDeliveries",
+  "type" : "array",
+  "items" : {
+      "type" : "object",
+      "properties": {
+          "eventID" : {"type" : "number"},
+          "eventScale" : {"type" : "number" },
+          "eventType" : {"type" : "number"},
+          "startTime" : {"type" : "string"},
+          "length" : {"type" : "string"}
+        }
+  }
+}

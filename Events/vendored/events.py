@@ -34,22 +34,24 @@ def timeClientToPg(date):
 
 
 
-def createEvent(db, scale, eventType, startTime, length):
+def createEvent(db, scale, eventType, startTime, length, lat, lon):
 	inputs = {}
 	if(eventType == 0):
 		queryString = """
-		INSERT INTO events (event_scale, event_type, start_time, length_time) 
-		VALUES (%(scale)s, %(eventType)s, %(startTime)s, %(endTime)s) 
+		INSERT INTO events (event_scale, event_type, start_time, length_time, loc) 
+		VALUES (%(scale)s, %(eventType)s, %(startTime)s, %(endTime)s, ST_SetSRID(ST_MakePoint(%(lon)s,%(lat)s), 4326)) 
 		RETURNING event_id;"""
 		inputs = { 'scale' : scale, 
 		'eventType' : eventType, 
 		'startTime' : timeClientToPg(startTime), 
-		'endTime' : timeClientToPg(length) 
+		'endTime' : timeClientToPg(length),
+		'lat' : lat,
+		'lon' : lon
 		}
 
 	else:
-		inputs = { 'scale' : scale, 'eventType' : eventType, 'startTime' : timeClientToPg(startTime), 'length' : length }
-		queryString = """INSERT INTO events (event_scale, event_type, start_time, length_distance) VALUES (%(scale)s, %(eventType)s, %(startTime)s, %(length)s) RETURNING event_id;"""
+		inputs = { 'scale' : scale, 'eventType' : eventType, 'startTime' : timeClientToPg(startTime), 'length' : length , 'lat' : lat, 'lon': lon}
+		queryString = """INSERT INTO events (event_scale, event_type, start_time, length_distance, loc) VALUES (%(scale)s, %(eventType)s, %(startTime)s, %(length)s, ST_SetSRID(ST_MakePoint(%(lon)s,%(lat)s), 4326)) RETURNING event_id;"""
 	
 	output = db.dbExecuteReturnOne(queryString, inputs)
 	if(output):
@@ -146,14 +148,14 @@ def getMyEvents(db, userID):
 	queryString = """
 		SELECT user_event_progress.event_id,
 				events.event_scale, 
-				event.event_type,
+				events.event_type,
 				events.start_time,
 				events.length_time,
 				events.length_distance
 		FROM user_event_progress
-		WHERE user_event_progress.user_id = %(userID)s
 		INNER JOIN events 
-		ON user_event_progress.event_id = events.event_id;"""
+		ON user_event_progress.event_id = events.event_id
+		WHERE user_event_progress.user_id = %(userID)s;"""
 	inputs = {
 		'userID' : userID
 	}
@@ -165,22 +167,23 @@ def getMyEvents(db, userID):
 		if(e[2] == 0):
 			outList.append( {
 				'eventID' : e[0],
-				'eventScale' : e[1]
+				'eventScale' : e[1],
 				'eventType' : e[2],
-				'startTime' : e[3],
-				'length' : e[4]
+				'startTime' : timePgToClient(e[3]),
+				'length' : timePgToClient(e[4])
 				})
 		else:
 			outList.append( {
 				'eventID' : e[0],
-				'eventScale' : e[1]
+				'eventScale' : e[1],
 				'eventType' : e[2],
-				'startTime' : e[3],
+				'startTime' : timePgToClient(e[3]),
 				'length' : e[5]
 				})
 	return outList
 
 def getEvents(db, eventType, eventScale):
+
 	return "hi"
 
 

@@ -91,6 +91,33 @@ functions:
           request:
             template:
               application/json: ${file(mappingtemplates/request-UpdateProgress.vtl)}
+  ################################################################################
+  GetEvents: #Retrieves all runs from DynamoDB database
+    memorySize: 128 #Memory in MB
+    handler: GetEvents/handler-GetEvents.handler
+    role: arn:aws:iam::863221427435:role/lambda_basic_execution #IAM role that defines permissions for the function
+    events: #Events to trigger the function execution
+      - 
+        http:
+          path: /event
+          method: get
+          integration: lambda
+          request:
+            parameters:
+              querystrings:
+                userID: false #Pass this to retrieve the users events
+                eventType: false #Distance or Timed
+                eventScale: false #Global or Local
+            template:
+              application/json: ${file(mappingtemplates/request-GetEvents.vtl)}
+          documentation:
+            summary: "Test summary"
+            description: "Test description 1"
+            methodResponses:
+              -
+                statusCode: 200
+                responseModels:
+                  "application/json": "GetEvents"
 
  
 custom:
@@ -101,4 +128,8 @@ custom:
         description: "Response Model for creating an event"
         contentType: "application/json"
         schema: ${file(models/response-CreateEvent.json)}
-
+      -
+        name: "responseGetEvents"
+        description: "Response Model for retrieving information about events"
+        contentType: "application/json"
+        schema: ${file(models/response-GetEvents.json)}
