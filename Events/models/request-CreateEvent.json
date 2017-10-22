@@ -8,6 +8,7 @@
         "startTime" : {"type" : "string"},
         "length" : {"type" : "string"},
         "lat" : {"type" : "number"},
-        "lon" : {"type" : "number"}
+        "lon" : {"type" : "number"},
+        "name" : {"type" : "string"}
     }
 }

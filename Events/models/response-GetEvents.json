@@ -9,7 +9,8 @@
           "eventScale" : {"type" : "number" },
           "eventType" : {"type" : "number"},
           "startTime" : {"type" : "string"},
-          "length" : {"type" : "string"}
+          "length" : {"type" : "string"},
+          "name" : {"type" : "string"}
         }
   }
 }

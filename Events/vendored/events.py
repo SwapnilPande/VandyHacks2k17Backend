@@ -1,4 +1,5 @@
 import datetime
+import sms
 
 
 ############################################################################
@@ -34,19 +35,23 @@ def timeClientToPg(date):
 
 
 
-def createEvent(db, scale, eventType, startTime, length, lat, lon):
+
+
+def createEvent(db, scale, eventType, startTime, length, lat, lon, name):
 	inputs = {}
 	if(eventType == 0):
 		queryString = """
-		INSERT INTO events (event_scale, event_type, start_time, length_time, loc) 
-		VALUES (%(scale)s, %(eventType)s, %(startTime)s, %(endTime)s, ST_SetSRID(ST_MakePoint(%(lon)s,%(lat)s), 4326)) 
+		INSERT INTO events (event_scale, event_type, start_time, length_time, loc, name) 
+		VALUES (%(scale)s, %(eventType)s, %(startTime)s, %(endTime)s, 
+				ST_SetSRID(ST_MakePoint(%(lon)s,%(lat)s), 4326), %(name)s) 
 		RETURNING event_id;"""
 		inputs = { 'scale' : scale, 
 		'eventType' : eventType, 
 		'startTime' : timeClientToPg(startTime), 
 		'endTime' : timeClientToPg(length),
 		'lat' : lat,
-		'lon' : lon
+		'lon' : lon,
+		'name' : name
 		}
 
 	else:
@@ -57,6 +62,8 @@ def createEvent(db, scale, eventType, startTime, length, lat, lon):
 	if(output):
 		return {'eventID' : output[0]}
 	return {'eventID' : ''}
+
+
 
 def joinEvent(db, userID, eventID):
 	queryString = """
@@ -151,7 +158,8 @@ def getMyEvents(db, userID):
 				events.event_type,
 				events.start_time,
 				events.length_time,
-				events.length_distance
+				events.length_distance,
+				events.name
 		FROM user_event_progress
 		INNER JOIN events 
 		ON user_event_progress.event_id = events.event_id
@@ -170,7 +178,8 @@ def getMyEvents(db, userID):
 				'eventScale' : e[1],
 				'eventType' : e[2],
 				'startTime' : timePgToClient(e[3]),
-				'length' : timePgToClient(e[4])
+				'length' : timePgToClient(e[4]),
+				'name': e[6]
 				})
 		else:
 			outList.append( {
@@ -178,13 +187,124 @@ def getMyEvents(db, userID):
 				'eventScale' : e[1],
 				'eventType' : e[2],
 				'startTime' : timePgToClient(e[3]),
-				'length' : e[5]
+				'length' : e[5],
+				'name': e[6]
 				})
 	return outList
 
 def getEvents(db, eventType, eventScale):
+	queryString = """
+	SELECT event_id,
+			event_scale, 
+			event_type,
+			start_time,
+			length_time,
+			length_distance,
+			name
+	FROM events 
+	"""
+	typeBool = eventType is not None
+	scaleBool = eventScale is not None
+	if(typeBool or scaleBool):
+		queryString += "WHERE "
+		if(typeBool):
+			queryString += "events.event_type = %(eventType)s "
+		if(typeBool and scaleBool):
+			queryString += "AND "
+		if(scaleBool):
+			queryString += "events.event_scale = %(eventScale)s;"
+	inputs = {
+		'eventType' : eventType,
+		'eventScale' : eventScale
+	}
+	output = db.dbExecuteReturnAll(queryString, inputs)
+	outList = []
+	#Reformatting data for JSON output
+	for e in output:
+		if(e[2] == 0):
+			outList.append( {
+				'eventID' : e[0],
+				'eventScale' : e[1],
+				'eventType' : e[2],
+				'startTime' : timePgToClient(e[3]),
+				'length' : timePgToClient(e[4]),
+				'name': e[6]
+				})
+		else:
+			outList.append( {
+				'eventID' : e[0],
+				'eventScale' : e[1],
+				'eventType' : e[2],
+				'startTime' : timePgToClient(e[3]),
+				'length' : e[5],
+				'name': e[6]
+				})
+	return outList
 
-	return "hi"
+#Returns the numbers of all users who are participating in event
+def getNumbers(db, eventID):
+	queryString = """
+	SELECT users.phone FROM user_event_progress
+	INNER JOIN users ON user_event_progress.user_id = users.user_id
+	WHERE user_event_progress.event_id = %(eventID)s"""
+	inputs = {
+		'eventID' : eventID
+	}
+	output = db.dbExecuteReturnAll(queryString, inputs)
+	outList = []
+	for phone in output:
+		outList.append(phone[0])
+	return outList
+
+def getMessage(db, eventID):
+	queryString = """
+	SELECT event_type FROM events
+	WHERE event_id = %(eventID)s;"""
+	inputs = {
+		'eventID': eventID
+	}
+	eventType = db.dbExecuteReturnOne(queryString, inputs)[0]
+	if(eventType == 0):
+		queryString2 = """
+		SELECT EXTRACT(EPOCH FROM length_time - start_time)/60
+		FROM events
+		WHERE event_id = %(eventID)s;"""
+		inputs2 = {
+			'eventID': eventID
+		} 
+		minutes = db.dbExecuteReturnOne(queryString2, inputs2)[0]
+		return "You're " + str(minutes) + " minute event is beginning now!"
+	else:
+		queryString2 = """
+		SELECT length_distance
+		FROM events
+		WHERE event_id = %(eventID)s;"""
+		inputs2 = {
+			'eventID': eventID
+		} 
+		distance = db.dbExecuteReturnOne(queryString2, inputs2)[0]
+		return "You're " + str(minutes) + "km event is beginning now!"
+
+
+
+
+def getStartingEvents(db, curTime):
+	queryString = """
+	SELECT event_id FROM events
+	WHERE EXTRACT(EPOCH FROM start_time - TIMESTAMP %(pgTime)s)/60 < 1;"""
+
+	inputs = {
+		"pgTime" : timeClientToPg(curTime)
+	}
+
+	#Returns all of the events that need to start
+	output = db.dbExecuteReturnAll(queryString, inputs)
+	numbers = []
+
+	for eventID in output:
+		numbers = getNumbers(db, eventID[0])
+		sms.sendMessages(numbers, getMessage(db, eventID[0]))
+
 
 
 
