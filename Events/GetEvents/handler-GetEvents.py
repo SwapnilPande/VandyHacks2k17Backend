@@ -1,5 +1,6 @@
 import sys
 import os
+import datetime
 
 here = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(here, "../vendored"))
@@ -16,13 +17,14 @@ dbPassword = os.environ['dbpassword'] #password of the database to connect to
 db = database.DatabaseConnection(dbName, dbUser, dbHost, dbPassword)
 
 def handler(event, context):
+	time = datetime.datetime.now() - datetime.timedelta(hours=1)
 	userID = None
 	eventType = None
 	eventScale = None
 
 	if('userID' in event):
 		userID = event['userID']
-		return events.getMyEvents(db, userID)
+		return events.getMyEvents(db, userID, time)
 
 	if('eventType' in event):
 		eventType = event['eventType']
@@ -31,4 +33,4 @@ def handler(event, context):
 		eventScale = event['eventScale']
 
     #Call and return createUser
-	return events.getEvents(db, eventType, eventScale)
+	return events.getEvents(db, eventType, eventScale, time)

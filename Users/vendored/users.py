@@ -15,7 +15,16 @@ def createUser(db, name, email, lat, lon, phone):
         VALUES (%(userID)s, ST_SetSRID(ST_MakePoint(%(lon)s,%(lat)s), 4326));"""
 		inputs2 = { 'userID': uid, 'lat' : lat, 'lon' : lon}
 		db.dbExecuteReturnNone(queryString2, inputs2)
+
+		queryString3 = """
+		INSERT INTO last_run_stats(user_id)
+		VALUES (%(userID)s);"""
+		inputs3 = { 'userID': uid }
+
+		db.dbExecuteReturnNone(queryString3, inputs3)
+
         return {'UID' : uid}
+
 	return {'UID' : ''}
 
 
@@ -49,7 +58,7 @@ def getUserInfo(db, uid):
 	inputs = {'uid' : uid}
 	output = db.dbExecuteReturnOne(queryString, inputs)
 	if(output):
-		output = output[0][1:-1].split(',')
+		output = output[0].split(',')
 		return {
 			"name" : output[0][1:-1],
 			"email" : output[1],

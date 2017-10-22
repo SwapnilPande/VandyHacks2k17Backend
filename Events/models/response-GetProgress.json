@@ -1,0 +1,12 @@
+ {
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "responseGetDeliveries",
+  "type" : "array",
+  "items" : {
+      "type" : "object",
+      "properties": {
+          "progress" : {"type" : "number"},
+          "name" : {"type" : "string" }
+        }
+  }
+}

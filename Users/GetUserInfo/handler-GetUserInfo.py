@@ -18,7 +18,3 @@ db = database.DatabaseConnection(dbName, dbUser, dbHost, dbPassword)
 def handler(event, context):
     #Call and return createUser
     return users.getUserInfo(db, event['uid']) 
-
-input = {'uid' :'3'}
-
-print(handler(input,'hi'))

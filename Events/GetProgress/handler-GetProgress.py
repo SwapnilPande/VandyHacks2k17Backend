@@ -16,8 +16,5 @@ dbPassword = os.environ['dbpassword'] #password of the database to connect to
 db = database.DatabaseConnection(dbName, dbUser, dbHost, dbPassword)
 
 def handler(event, context):
-    #Call and return createUser
-    return events.createEvent(db, event['scale'], event['type'], 
-    						event['startTime'], event['length'],
-    						event['lat'] , event['lon'], 
-    						event['name']) 
+    #Call and return getProgress
+	return events.getProgress(db, event['userID'])
