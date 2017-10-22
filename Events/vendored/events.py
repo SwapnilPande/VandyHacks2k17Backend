@@ -142,3 +142,50 @@ def updateProgress(db, userID, lat, lon):
 	return "Success"
 
 
+def getMyEvents(db, userID):
+	queryString = """
+		SELECT user_event_progress.event_id,
+				events.event_scale, 
+				event.event_type,
+				events.start_time,
+				events.length_time,
+				events.length_distance
+		FROM user_event_progress
+		WHERE user_event_progress.user_id = %(userID)s
+		INNER JOIN events 
+		ON user_event_progress.event_id = events.event_id;"""
+	inputs = {
+		'userID' : userID
+	}
+
+	output = db.dbExecuteReturnAll(queryString, inputs)
+	outList = []
+	#Reformatting data for JSON output
+	for e in output:
+		if(e[2] == 0):
+			outList.append( {
+				'eventID' : e[0],
+				'eventScale' : e[1]
+				'eventType' : e[2],
+				'startTime' : e[3],
+				'length' : e[4]
+				})
+		else:
+			outList.append( {
+				'eventID' : e[0],
+				'eventScale' : e[1]
+				'eventType' : e[2],
+				'startTime' : e[3],
+				'length' : e[5]
+				})
+	return outList
+
+def getEvents(db, eventType, eventScale):
+	return "hi"
+
+
+
+
+
+
+

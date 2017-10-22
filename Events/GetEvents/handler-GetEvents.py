@@ -16,6 +16,19 @@ dbPassword = os.environ['dbpassword'] #password of the database to connect to
 db = database.DatabaseConnection(dbName, dbUser, dbHost, dbPassword)
 
 def handler(event, context):
-	
+	userID = None
+	eventType = None
+	eventScale = None
+
+	if('userID' in event):
+		userID = event['userID']
+		return events.getMyEvents(db, userID)
+
+	if('eventType' in event):
+		eventType = event['eventType']
+
+	if('eventScale' in event):
+		eventScale = event['eventScale']
+
     #Call and return createUser
-    return events.getEvents(db, event['userID'])
+	return events.getEvents(db, eventType, eventScale)
